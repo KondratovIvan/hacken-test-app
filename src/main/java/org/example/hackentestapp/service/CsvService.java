@@ -1,5 +1,7 @@
 package org.example.hackentestapp.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.hackentestapp.domain.CSVField;
@@ -16,13 +18,26 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-@RequiredArgsConstructor
 public class CsvService {
-
     private final CSVRecordRepository csvRecordRepository;
+    private final MeterRegistry meterRegistry;
+    private final Counter parseMethodCallCounter;
+    private final Counter searchMethodCallCounter;
+
+    public CsvService(CSVRecordRepository csvRecordRepository, MeterRegistry meterRegistry) {
+        this.csvRecordRepository = csvRecordRepository;
+        this.meterRegistry = meterRegistry;
+        this.parseMethodCallCounter = Counter.builder("csv.parseMethod.calls")
+                .description("The number of method calls to parseCsvFile")
+                .register(meterRegistry);
+        this.searchMethodCallCounter = Counter.builder("csv.searchMethod.calls")
+                .description("The number of method calls to dataSearch")
+                .register(meterRegistry);
+    }
 
     @Transactional
     public void parseCsvFile(Path filePath) {
+        parseMethodCallCounter.increment(); // Increment the counter each time the method is called
         try (Reader reader = Files.newBufferedReader(filePath);
              CSVReader csvReader = new CSVReader(reader)) {
 
@@ -50,6 +65,7 @@ public class CsvService {
     }
 
     public List<CSVRecord> dataSearch(String name, String value) {
+        searchMethodCallCounter.increment();
         return csvRecordRepository.findCSVRecordsByNameAndValue(name, value);
     }
 }
