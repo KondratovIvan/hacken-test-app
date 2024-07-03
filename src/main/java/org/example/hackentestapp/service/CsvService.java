@@ -1,5 +1,6 @@
 package org.example.hackentestapp.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.hackentestapp.domain.CSVField;
 import org.example.hackentestapp.repository.CSVRecordRepository;
@@ -11,14 +12,16 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class CsvService {
 
-    private final CSVRecordRepository recordRepository;
+    private final CSVRecordRepository csvRecordRepository;
 
+    @Transactional
     public void parseCsvFile(Path filePath) {
         try (Reader reader = Files.newBufferedReader(filePath);
              CSVReader csvReader = new CSVReader(reader)) {
@@ -39,10 +42,14 @@ public class CsvService {
                 }
 
                 csvRecord.setFields(fields);
-                recordRepository.save(csvRecord);
+                csvRecordRepository.save(csvRecord);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<CSVRecord> dataSearch(String name, String value) {
+        return csvRecordRepository.findCSVRecordsByNameAndValue(name, value);
     }
 }

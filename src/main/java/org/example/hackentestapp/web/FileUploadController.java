@@ -1,21 +1,20 @@
 package org.example.hackentestapp.web;
 
 import lombok.RequiredArgsConstructor;
+import org.example.hackentestapp.domain.CSVRecord;
 import org.example.hackentestapp.service.CsvService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping(value = "/api/v1/csv")
 public class FileUploadController {
 
     private final CsvService csvService;
@@ -23,20 +22,22 @@ public class FileUploadController {
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {
-            // Сохраняем файл локально
-            Path filePath = Paths.get(file.getOriginalFilename());
+            Path filePath = Paths.get(Objects.requireNonNull(file.getOriginalFilename()));
             Files.write(filePath, file.getBytes());
 
-            // Парсим CSV файл и сохраняем в БД
             csvService.parseCsvFile(filePath);
 
-            // Удаляем временный файл
             Files.delete(filePath);
 
-            return "redirect:/success";
+            return "CSV file was parsed successfully";
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/failure";
+            return "CSV file parsing failure";
         }
+    }
+
+    @GetMapping("/search")
+    public List<CSVRecord> getCSVRecordByNameAndValue(@RequestParam String name, @RequestParam String value) {
+        return csvService.dataSearch(name, value);
     }
 }

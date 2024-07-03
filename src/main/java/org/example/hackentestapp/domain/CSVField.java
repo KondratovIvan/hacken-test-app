@@ -1,5 +1,6 @@
 package org.example.hackentestapp.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class CSVField {
     private String value;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "record_id")
     private CSVRecord record;
 
