@@ -1,4 +1,4 @@
-# clear-solutions-test-app
+# hacken-test-app
 
 To run this application you must
 
