@@ -1,6 +1,5 @@
 package org.example.hackentestapp.repository;
 
-import org.example.hackentestapp.domain.CSVField;
 import org.example.hackentestapp.domain.CSVRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
