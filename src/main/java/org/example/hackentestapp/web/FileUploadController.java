@@ -60,4 +60,14 @@ public class FileUploadController {
     public List<CSVRecord> getCSVRecordByNameAndValue(@RequestParam String name, @RequestParam String value) {
         return csvService.dataSearch(name, value);
     }
+
+    @GetMapping("/health")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Health Check Endpoint", description = "Checks the health of the application.", tags = {"CSV"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK. The application is up and running."),
+            @ApiResponse(responseCode = "500", description = "Internal server error. The application is down.")})
+    public String healthCheck() {
+        return "Application is up and running";
+    }
 }
